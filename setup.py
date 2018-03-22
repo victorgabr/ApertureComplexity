@@ -13,7 +13,7 @@ setup(
     long_description=readme,
     author='Victor G. L Alves',
     author_email='victorgabr@gmail.com',
-    url='https://github.com/kennethreitz/samplemod',
+    url='https://github.com/victorgabr/ApertureComplexity',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
