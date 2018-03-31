@@ -3,19 +3,17 @@
 # This class is derived from dicomparser.py of dicompyler-core, released under a BSD license.
 #    See the file license.txt included with this distribution, also
 #    available at https://github.com/dicompyler/dicompyler-core/
-
-try:
-    import pydicom as dicom
-except:
-    import dicom
+from typing import Dict
 
 import numpy as np
+import pydicom as dicom
+from pydicom.valuerep import IS
 
 
 class RTPlan:
     """Class that parses and returns formatted DICOM RT Plan data."""
 
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
 
         if filename:
             self.plan = dict()
@@ -37,7 +35,7 @@ class RTPlan:
         else:
             raise AttributeError
 
-    def get_plan(self):
+    def get_plan(self) -> Dict[str, str]:
         """Returns the plan information."""
         self.plan['label'] = self.ds.RTPlanLabel
         self.plan['date'] = self.ds.RTPlanDate
@@ -101,7 +99,7 @@ class RTPlan:
             self.plan['patient_name'] = ''
         return self.plan
 
-    def get_beams(self, fx=0):
+    def get_beams(self, fx: int = 0) -> Dict[IS, Dict[str, str]]:
         """Return the referenced beams from the specified fraction."""
 
         beams = {}
@@ -202,7 +200,7 @@ class RTPlan:
                         beams[bi.ReferencedBeamNumber]['MU'] = float(bi.BeamMeterset)
         return beams
 
-    def get_study_info(self):
+    def get_study_info(self) -> Dict[str, str]:
         """Return the study information of the current file."""
 
         study = {}

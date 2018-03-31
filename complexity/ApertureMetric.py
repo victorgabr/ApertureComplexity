@@ -20,7 +20,7 @@ Notes
 
 
 class Rect:
-    def __init__(self, left, top, right, bottom):
+    def __init__(self, left: float, top: float, right: float, bottom: float) -> None:
         """
             Rectangular dimension (used for leaf and jaw positions)
             it is relative to the top of the first leaf and the isocenter
@@ -40,7 +40,7 @@ class Rect:
 
 
 class Jaw:
-    def __init__(self, left, top, right, bottom):
+    def __init__(self, left: float, top: float, right: float, bottom: float) -> None:
         self.jaw_position = Rect(left, top, right, bottom)
 
     @property

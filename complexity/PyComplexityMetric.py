@@ -1,23 +1,26 @@
+import numpy
 import numpy as np
 
 from complexity.ApertureMetric import EdgeMetricBase
 from complexity.EsapiApertureMetric import ComplexityMetric
-from complexity.PyApertureMetric import PyAperturesFromBeamCreator, PyMetersetsFromMetersetWeightsCreator
+from complexity.PyApertureMetric import PyAperturesFromBeamCreator, PyMetersetsFromMetersetWeightsCreator, PyAperture
+
+from typing import Dict, List
 
 
 class PyEdgeMetricBase(EdgeMetricBase):
-    def Calculate(self, aperture):
+    def Calculate(self, aperture: PyAperture) -> float:
         return self.DivisionOrDefault(aperture.side_perimeter(), aperture.Area())
 
     @staticmethod
-    def DivisionOrDefault(a, b):
-        return a / b if b != 0 else 0
+    def DivisionOrDefault(a: float, b: float) -> float:
+        return a / b if b != 0 else 0.
 
 
 class PyComplexityMetric(ComplexityMetric):
     # TODO add unit tests
 
-    def CalculateForPlan(self, patient=None, plan=None):
+    def CalculateForPlan(self, patient: None = None, plan: Dict[str, str] = None) -> float:
         """
             Returns the complexity metric of a plan, calculated as
             the weighted sum of the individual metrics for each beam
@@ -30,7 +33,7 @@ class PyComplexityMetric(ComplexityMetric):
 
         return self.WeightedSum(weights, metrics)
 
-    def GetWeightsPlan(self, plan):
+    def GetWeightsPlan(self, plan: Dict[str, str]) -> List[float]:
         """
              Returns the weights of a plan's beams
              by default, the weights are the meterset values per beam
@@ -38,7 +41,7 @@ class PyComplexityMetric(ComplexityMetric):
         """
         return self.GetMeterSetsPlan(plan)
 
-    def GetMeterSetsPlan(self, plan):
+    def GetMeterSetsPlan(self, plan: Dict[str, str]) -> List[float]:
         """
             Returns the total metersets of a plan's beams
         :param plan: DicomParser plan dictionaty
@@ -46,7 +49,7 @@ class PyComplexityMetric(ComplexityMetric):
         """
         return [float(beam['MU']) for k, beam in plan['beams'].items() if 'MU' in beam]
 
-    def GetMetersetsBeam(self, beam):
+    def GetMetersetsBeam(self, beam: Dict[str, str]) -> np.ndarray:
         """
             Returns the metersets of a beam's control points
         :param beam:
@@ -54,7 +57,7 @@ class PyComplexityMetric(ComplexityMetric):
         """
         return PyMetersetsFromMetersetWeightsCreator().Create(beam)
 
-    def CalculateForPlanPerBeam(self, patient, plan):
+    def CalculateForPlanPerBeam(self, patient: None, plan: Dict[str, str]) -> List[float]:
         """
             Returns the unweighted metrics of a plan's non-setup beams
         :param patient:
@@ -70,15 +73,15 @@ class PyComplexityMetric(ComplexityMetric):
 
         return values
 
-    def CalculatePerAperture(self, apertures):
+    def CalculatePerAperture(self, apertures: List[PyAperture]) -> List[float]:
         metric = PyEdgeMetricBase()
         return [metric.Calculate(aperture) for aperture in apertures]
 
-    def CalculateForBeamPerAperture(self, patient, plan, beam):
+    def CalculateForBeamPerAperture(self, patient: None, plan: Dict[str, str], beam: Dict[str, str]) -> List[float]:
         apertures = self.CreateApertures(patient, plan, beam)
         return self.CalculatePerAperture(apertures)
 
-    def CreateApertures(self, patient, plan, beam):
+    def CreateApertures(self, patient: None, plan: Dict[str, str], beam: Dict[str, str]) -> List[PyAperture]:
         """
             Added default parameter to meet Liskov substitution principle
         :param patient:
@@ -144,4 +147,3 @@ class ApertureIrregularityMetric(PyComplexityMetric):
         """
         metric = ApertureIrregularity()
         return [metric.Calculate(aperture) for aperture in apertures]
-

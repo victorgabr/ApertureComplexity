@@ -1,12 +1,15 @@
+#Typing imports
+from typing import List, Dict
+from pydicom.dataset import Dataset
+
 import numpy as np
 
-from complexity.ApertureMetric import Aperture, LeafPair
-from complexity.EsapiApertureMetric import MetersetsFromMetersetWeightsCreator
-from complexity.dicomrt import RTPlan
+from complexity.ApertureMetric import Aperture, LeafPair, Jaw
+
 
 class PyLeafPair(LeafPair):
 
-    def __init__(self, left, right, width, top, jaw):
+    def __init__(self, left: float, right: float, width: float, top: float, jaw: Jaw) -> None:
         super().__init__(left, right, width, top, jaw)
 
     def __repr__(self):
@@ -18,11 +21,13 @@ class PyLeafPair(LeafPair):
 
 class PyAperture(Aperture):
 
-    def __init__(self, leaf_positions, leaf_widths, jaw, gantry_angle):
+    def __init__(self, leaf_positions: np.ndarray, leaf_widths: np.ndarray, jaw: List[float],
+                 gantry_angle: float) -> None:
         super().__init__(leaf_positions, leaf_widths, jaw)
         self.gantry_angle = gantry_angle
 
-    def CreateLeafPairs(self, positions, widths, jaw):
+    def CreateLeafPairs(self, positions: np.ndarray, widths: np.ndarray,
+                        jaw: Jaw) -> List[PyLeafPair]:
         leaf_tops = self.GetLeafTops(widths)
 
         pairs = []
@@ -32,15 +37,15 @@ class PyAperture(Aperture):
         return pairs
 
     @property
-    def LeafPairArea(self):
+    def LeafPairArea(self) -> List[float]:
         return [lp.FieldArea() for lp in self.LeafPairs]
 
     @property
-    def GantryAngle(self):
+    def GantryAngle(self) -> float:
         return self.gantry_angle
 
     @GantryAngle.setter
-    def GantryAngle(self, value):
+    def GantryAngle(self, value: float):
         self.gantry_angle = value
 
     def __repr__(self):
@@ -50,7 +55,7 @@ class PyAperture(Aperture):
 
 class PyAperturesFromBeamCreator:
 
-    def Create(self, beam):
+    def Create(self, beam: Dict[str, str]) -> List[PyAperture]:
 
         apertures = []
 
@@ -67,7 +72,7 @@ class PyAperturesFromBeamCreator:
         return apertures
 
     @staticmethod
-    def CreateJaw(beam):
+    def CreateJaw(beam: dict) -> List[float]:
         """
             but the Aperture class expects cartesian y axis
         :param beam:
@@ -83,7 +88,7 @@ class PyAperturesFromBeamCreator:
         # invert y axis to match apperture class -top, -botton that uses Varian standard ESAPI
         return [left, -top, right, -bottom]
 
-    def GetLeafWidths(self, beam_dict):
+    def GetLeafWidths(self, beam_dict: Dict) -> np.ndarray:
         """
             Get MLCX leaf width from  BeamLimitingDeviceSequence
             (300a, 00be) Leaf Position Boundaries Tag
@@ -99,7 +104,7 @@ class PyAperturesFromBeamCreator:
             if b.RTBeamLimitingDeviceType in ['MLCX', 'MLCX1', 'MLCX2']:
                 return np.diff(b.LeafPositionBoundaries)
 
-    def GetLeafTops(self, beam_dict):
+    def GetLeafTops(self, beam_dict: Dict) -> np.ndarray:
         """
             Get MLCX leaf Tops from  BeamLimitingDeviceSequence
             (300a, 00be) Leaf Position Boundaries Tag
@@ -111,7 +116,7 @@ class PyAperturesFromBeamCreator:
             if b.RTBeamLimitingDeviceType == 'MLCX':
                 return np.array(b.LeafPositionBoundaries[:-1], dtype=float)
 
-    def GetLeafPositions(self, control_point):
+    def GetLeafPositions(self, control_point: Dataset) -> np.ndarray:
         """
             Leaf positions are given from bottom to top by ESAPI,
             but the Aperture class expects them from top to bottom
@@ -131,7 +136,7 @@ class PyAperturesFromBeamCreator:
 
 class PyMetersetsFromMetersetWeightsCreator:
 
-    def Create(self, beam):
+    def Create(self, beam: Dict[str, str]) -> np.ndarray:
         if beam['PrimaryDosimeterUnit'] != 'MU':
             return None
 
