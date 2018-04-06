@@ -15,5 +15,6 @@ setup(
     author_email='victorgabr@gmail.com',
     url='https://github.com/victorgabr/ApertureComplexity',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    # packages=find_packages(exclude=('tests', 'docs'))
+    packages=['complexity']
 )
