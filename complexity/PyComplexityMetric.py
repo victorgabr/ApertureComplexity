@@ -47,7 +47,14 @@ class PyComplexityMetric(ComplexityMetric):
         :param plan: DicomParser plan dictionaty
         :return: metersets of a plan's beams
         """
-        return [float(beam['MU']) for k, beam in plan['beams'].items() if 'MU' in beam]
+
+        metersets = []
+        for k, beam in plan['beams'].items():
+            if 'MU' in beam:
+                if beam['MU'] > 0:
+                    metersets.append(float(beam['MU']))
+
+        return metersets
 
     def GetMetersetsBeam(self, beam: Dict[str, str]) -> np.ndarray:
         """
@@ -68,8 +75,9 @@ class PyComplexityMetric(ComplexityMetric):
         for k, beam in plan['beams'].items():
             # check if treatment beam
             if beam['TreatmentDeliveryType'] == 'TREATMENT':
-                v = self.CalculateForBeam(patient, plan, beam)
-                values.append(v)
+                if beam['MU'] > 0.:
+                    v = self.CalculateForBeam(patient, plan, beam)
+                    values.append(v)
 
         return values
 
