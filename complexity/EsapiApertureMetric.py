@@ -150,7 +150,9 @@ class ComplexityMetric:
         :param beam:
         :return:
         """
-        return self.WeightedValues(self.GetWeightsBeam(beam), self.GetMetricsBeam(patient, plan, beam))
+        return self.WeightedValues(
+            self.GetWeightsBeam(beam), self.GetMetricsBeam(patient, plan, beam)
+        )
 
     def CalculatePerControlPointUnweighted(self, patient, plan, beam):
         """
@@ -191,11 +193,11 @@ class ComplexityMetric:
 
 class MetersetsFromMetersetWeightsCreator:
     def Create(self, beam):
-        if beam['PrimaryDosimeterUnit'] != 'MU' or 'MU' not in beam:
+        if beam["PrimaryDosimeterUnit"] != "MU" or "MU" not in beam:
             return None
 
-        metersetWeights = self.GetMetersetWeights(beam['ControlPointSequence'])
-        metersets = self.ConvertMetersetWeightsToMetersets(beam['MU'], metersetWeights)
+        metersetWeights = self.GetMetersetWeights(beam["ControlPointSequence"])
+        metersets = self.ConvertMetersetWeightsToMetersets(beam["MU"], metersetWeights)
 
         return self.UndoCummulativeSum(metersets)
 

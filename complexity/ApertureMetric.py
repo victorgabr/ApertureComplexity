@@ -35,8 +35,12 @@ class Rect:
         self.Bottom = bottom
 
     def __repr__(self):
-        return 'Position: left: %1.1f top: %1.1f right: %1.1f botton: %1.1f' \
-               % (self.Left, self.Top, self.Right, self.Bottom)
+        return "Position: left: %1.1f top: %1.1f right: %1.1f botton: %1.1f" % (
+            self.Left,
+            self.Top,
+            self.Right,
+            self.Bottom,
+        )
 
 
 class Jaw:
@@ -145,8 +149,12 @@ class LeafPair:
             so it's safer to count the leaf as outside,
             so that the edges are not counted twice (leaf and jaw edge)
         """
-        return (self.Jaw.Top <= self.Bottom) or (self.Jaw.Bottom >= self.Top) \
-               or (self.Jaw.Left >= self.Right) or (self.Jaw.Right <= self.Left)
+        return (
+            (self.Jaw.Top <= self.Bottom)
+            or (self.Jaw.Bottom >= self.Top)
+            or (self.Jaw.Left >= self.Right)
+            or (self.Jaw.Right <= self.Left)
+        )
 
     def IsOpen(self):
         return self.FieldSize() > 0.0
@@ -156,7 +164,9 @@ class LeafPair:
         Used to warn the user that there is a leaf behind the jaws,
         even though it is open and within the top and bottom jaw edges
         """
-        return (self.FieldSize() > 0.0) and (self.Jaw.Left > self.Left or self.Jaw.Right < self.Right)
+        return (self.FieldSize() > 0.0) and (
+            self.Jaw.Left > self.Left or self.Jaw.Right < self.Right
+        )
 
     def OpenLeafWidth(self):
         """
@@ -224,7 +234,9 @@ class Aperture:
 
         pairs = []
         for i in range(len(widths)):
-            lp = LeafPair(positions[0, i], positions[1, i], widths[i], leaf_tops[i], jaw)
+            lp = LeafPair(
+                positions[0, i], positions[1, i], widths[i], leaf_tops[i], jaw
+            )
             pairs.append(lp)
         return pairs
 
@@ -349,8 +361,7 @@ class Aperture:
         topEdgeRight = min(self.Jaw.Right, topLeafPair.Right)
         bottomEdgeRight = min(self.Jaw.Right, bottomLeafPair.Right)
 
-        return abs(topEdgeLeft - bottomEdgeLeft) + \
-               abs(topEdgeRight - bottomEdgeRight)
+        return abs(topEdgeLeft - bottomEdgeLeft) + abs(topEdgeRight - bottomEdgeRight)
 
     def LeafPairsAreOutsideJaw(self, topLeafPair, bottomLeafPair):
         return topLeafPair.IsOutsideJaw() and bottomLeafPair.IsOutsideJaw()
@@ -363,7 +374,9 @@ class Aperture:
 
     def LeafPairsAreDisjoint(self, topLeafPair, bottomLeafPair):
 
-        return (bottomLeafPair.Left > topLeafPair.Right) or (bottomLeafPair.Right < topLeafPair.Left)
+        return (bottomLeafPair.Left > topLeafPair.Right) or (
+            bottomLeafPair.Right < topLeafPair.Left
+        )
 
 
 class EdgeMetricBase:

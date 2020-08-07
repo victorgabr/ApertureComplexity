@@ -12,12 +12,12 @@ if len(sys.argv) != 2:
 st = time.time()
 plan_info = RTPlan(filename=sys.argv[1])
 plan_dict = plan_info.get_plan()
-beams = [beam for k, beam in plan_dict['beams'].items()]
+beams = [beam for k, beam in plan_dict["beams"].items()]
 complexity_obj = PyComplexityMetric()
 
 complexity_metric = complexity_obj.CalculateForPlan(None, plan_dict)
 ed = time.time()
-print('elapsed', ed - st)
+print("elapsed", ed - st)
 
 _, plan_file = os.path.split(sys.argv[1])
 

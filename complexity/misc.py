@@ -5,7 +5,10 @@ import numpy as np
 import pandas as pd
 from scipy import integrate
 
-from complexity.PyApertureMetric import PyMetersetsFromMetersetWeightsCreator, PyAperturesFromBeamCreator
+from complexity.PyApertureMetric import (
+    PyMetersetsFromMetersetWeightsCreator,
+    PyAperturesFromBeamCreator,
+)
 from complexity.PyComplexityMetric import PyComplexityMetric
 
 
@@ -39,13 +42,17 @@ class LeafSequenceVariability:
         :return: product LSV * AAV
         """
 
-        pos = [(lp.Left, lp.Right) for lp in aperture.LeafPairs if not lp.IsOutsideJaw()]
+        pos = [
+            (lp.Left, lp.Right) for lp in aperture.LeafPairs if not lp.IsOutsideJaw()
+        ]
         N = len(pos)
         pos_max = np.max(pos, axis=0) - np.min(pos, axis=0)
         tmp = np.sum(pos_max + np.diff(pos, axis=0), axis=0) / (N * pos_max)
         LSV = np.prod(tmp)
 
-        num = sum(([lp.FieldSize() for lp in aperture.LeafPairs if not lp.IsOutsideJaw()]))
+        num = sum(
+            ([lp.FieldSize() for lp in aperture.LeafPairs if not lp.IsOutsideJaw()])
+        )
         AAV = self.DivisionOrDefault(num, aav_norm)
 
         return LSV * AAV
@@ -64,7 +71,11 @@ class ModulationComplexityScore(PyComplexityMetric):
     def CalculatePerAperture(self, apertures):
         aav_norm = 0
         for aperture in apertures:
-            posi = [(lp.Left, lp.Right) for lp in aperture.LeafPairs if not lp.IsOutsideJaw()]
+            posi = [
+                (lp.Left, lp.Right)
+                for lp in aperture.LeafPairs
+                if not lp.IsOutsideJaw()
+            ]
             posi_max = np.max(posi, axis=0)
             aav_norm += abs(posi_max[1] - posi_max[0])
         metric = LeafSequenceVariability()
@@ -77,7 +88,7 @@ class ModulationIndexScore(PyComplexityMetric):
         apertures = []
         cumulative_metersets = []
         meterset_creator = PyMetersetsFromMetersetWeightsCreator()
-        for k, beam in plan['beams'].items():
+        for k, beam in plan["beams"].items():
             apertures += PyAperturesFromBeamCreator().Create(beam)
             cum = meterset_creator.GetCumulativeMetersets(beam)
             cumulative_metersets.append(cum)
@@ -88,7 +99,9 @@ class ModulationIndexScore(PyComplexityMetric):
 
     def CalculateForBeam(self, patient, plan, beam, k=0.02):
         apertures = PyAperturesFromBeamCreator().Create(beam)
-        cumulative_metersets = PyMetersetsFromMetersetWeightsCreator().GetCumulativeMetersets(beam)
+        cumulative_metersets = PyMetersetsFromMetersetWeightsCreator().GetCumulativeMetersets(
+            beam
+        )
         mid = ModulationIndexTotal(apertures, cumulative_metersets)
         return mid.calculate_integrate(k=k)
 
@@ -104,29 +117,40 @@ class ModulationIndexTotal:
 
         # MLC position data
         self.mlc_positions = self.get_positions(self.apertures)
-        self.mlc_speed = (self.mlc_positions.diff().abs().T / self.cumulative_mu['time']).T
+        self.mlc_speed = (
+            self.mlc_positions.diff().abs().T / self.cumulative_mu["time"]
+        ).T
         self.mlc_speed_std = self.mlc_speed.std()
-        self.mlc_acceleration = (self.mlc_speed.diff().abs().T / self.cumulative_mu['time']).T
+        self.mlc_acceleration = (
+            self.mlc_speed.diff().abs().T / self.cumulative_mu["time"]
+        ).T
         self.mlc_acceleration_std = self.mlc_acceleration.std()
 
         # gantry data
         gantry_angles = np.array([ap.GantryAngle for ap in self.apertures])
-        self.gantry = pd.DataFrame(gantry_angles, columns=['gantry'])
-        self.gantry['delta_gantry'] = self.rolling_apply(self.delta_gantry, gantry_angles)
-        self.gantry['gantry_speed'] = self.gantry['delta_gantry'] / self.cumulative_mu['time']
-        self.gantry['delta_gantry_speed'] = self.gantry['gantry_speed'].diff().abs()
-        self.gantry['gantry_acc'] = self.gantry['delta_gantry_speed'] / self.cumulative_mu['time']
+        self.gantry = pd.DataFrame(gantry_angles, columns=["gantry"])
+        self.gantry["delta_gantry"] = self.rolling_apply(
+            self.delta_gantry, gantry_angles
+        )
+        self.gantry["gantry_speed"] = (
+            self.gantry["delta_gantry"] / self.cumulative_mu["time"]
+        )
+        self.gantry["delta_gantry_speed"] = self.gantry["gantry_speed"].diff().abs()
+        self.gantry["gantry_acc"] = (
+            self.gantry["delta_gantry_speed"] / self.cumulative_mu["time"]
+        )
 
         # dose rate data
         self.dose_rate = pd.DataFrame(
-            self.cumulative_mu['delta_mu'] / self.cumulative_mu['time'], columns=['DR'])
-        self.dose_rate['delta_dose_rate'] = self.dose_rate.diff().abs()
+            self.cumulative_mu["delta_mu"] / self.cumulative_mu["time"], columns=["DR"]
+        )
+        self.dose_rate["delta_dose_rate"] = self.dose_rate.diff().abs()
 
     def get_mu_data(self, cumulative_mu):
         # meterset data
-        tmp = pd.DataFrame(cumulative_mu, columns=['MU'])
-        tmp['delta_mu'] = tmp.diff().abs()
-        tmp['time'] = tmp['delta_mu'].apply(self.calculate_time)
+        tmp = pd.DataFrame(cumulative_mu, columns=["MU"])
+        tmp["delta_mu"] = tmp.diff().abs()
+        tmp["time"] = tmp["delta_mu"].apply(self.calculate_time)
         return tmp
 
     @staticmethod
@@ -152,7 +176,7 @@ class ModulationIndexTotal:
         r = np.empty(a.shape)
         r.fill(np.nan)
         for i in range(w - 1, a.shape[0]):
-            r[i] = fun(a[(i - w + 1):i + 1])
+            r[i] = fun(a[(i - w + 1) : i + 1])
         return r
 
     @staticmethod
@@ -167,22 +191,48 @@ class ModulationIndexTotal:
 
     def calc_mi_speed(self, mlc_speed, speed_std, k=1.0):
 
-        calc_z = lambda f: 1 / (self.Ncp - 1) * np.sum(np.sum(mlc_speed > f * speed_std))
+        calc_z = (
+            lambda f: 1 / (self.Ncp - 1) * np.sum(np.sum(mlc_speed > f * speed_std))
+        )
         res = integrate.quad(calc_z, 0, k)
         return res[0]
 
-    def calc_mi_acceleration(self, mlc_speed, speed_std, mlc_acc, mlc_acc_std, k=1.0, alpha=1.0):
+    def calc_mi_acceleration(
+        self, mlc_speed, speed_std, mlc_acc, mlc_acc_std, k=1.0, alpha=1.0
+    ):
 
-        z_acc = lambda f: (1 / (self.Ncp - 2)) * np.nansum(np.nansum(np.logical_or(mlc_speed > f * speed_std,
-                                                                                   mlc_acc > alpha * f * mlc_acc_std)))
+        z_acc = lambda f: (1 / (self.Ncp - 2)) * np.nansum(
+            np.nansum(
+                np.logical_or(
+                    mlc_speed > f * speed_std, mlc_acc > alpha * f * mlc_acc_std
+                )
+            )
+        )
         res = integrate.quad(z_acc, 0, k)
         return res[0]
 
-    def calc_mi_total(self, mlc_speed, speed_std, mlc_acc, mlc_acc_std, k=1.0, alpha=1.0, WGA=None, WMU=None):
+    def calc_mi_total(
+        self,
+        mlc_speed,
+        speed_std,
+        mlc_acc,
+        mlc_acc_std,
+        k=1.0,
+        alpha=1.0,
+        WGA=None,
+        WMU=None,
+    ):
 
-        z_total = lambda f: (1 / (self.Ncp - 2)) * \
-                            np.nansum(np.nansum(np.logical_or(mlc_speed > f * speed_std,
-                                                              mlc_acc > alpha * f * mlc_acc_std), axis=1) * WGA * WMU)
+        z_total = lambda f: (1 / (self.Ncp - 2)) * np.nansum(
+            np.nansum(
+                np.logical_or(
+                    mlc_speed > f * speed_std, mlc_acc > alpha * f * mlc_acc_std
+                ),
+                axis=1,
+            )
+            * WGA
+            * WMU
+        )
 
         res = integrate.quad(z_total, 0, k)
 
@@ -196,23 +246,33 @@ class ModulationIndexTotal:
 
         mis = self.calc_mi_speed(mlc_speed, self.mlc_speed_std.values, k)
 
-        alpha_acc = 1.0 / self.cumulative_mu['time'].mean()
-        mia = self.calc_mi_acceleration(mlc_speed, self.mlc_speed_std.values,
-                                        mlc_acc, self.mlc_acceleration_std.values,
-                                        k=k, alpha=alpha_acc)
+        alpha_acc = 1.0 / self.cumulative_mu["time"].mean()
+        mia = self.calc_mi_acceleration(
+            mlc_speed,
+            self.mlc_speed_std.values,
+            mlc_acc,
+            self.mlc_acceleration_std.values,
+            k=k,
+            alpha=alpha_acc,
+        )
 
-        gantry_acc = self.gantry['gantry_acc'].values
+        gantry_acc = self.gantry["gantry_acc"].values
         WGA = beta / (1 + (beta - 1) * np.exp(-gantry_acc / alpha))
 
         # Wmu
-        delta_dose_rate = self.dose_rate['delta_dose_rate'].values
+        delta_dose_rate = self.dose_rate["delta_dose_rate"].values
         WMU = beta / (1 + (beta - 1) * np.exp(-delta_dose_rate / alpha))
 
-        mit = self.calc_mi_total(mlc_speed,
-                                 self.mlc_speed_std.values,
-                                 mlc_acc,
-                                 self.mlc_acceleration_std.values,
-                                 k=k, alpha=alpha_acc, WGA=WGA, WMU=WMU)
+        mit = self.calc_mi_total(
+            mlc_speed,
+            self.mlc_speed_std.values,
+            mlc_acc,
+            self.mlc_acceleration_std.values,
+            k=k,
+            alpha=alpha_acc,
+            WGA=WGA,
+            WMU=WMU,
+        )
 
         return mis, mia, mit
 
@@ -224,7 +284,7 @@ class ModulationIndexTotal:
         z_speed = 1 / (self.Ncp - 1) * Ns
 
         # acc MI
-        alpha_acc = 1.0 / self.cumulative_mu['time'].mean()
+        alpha_acc = 1.0 / self.cumulative_mu["time"].mean()
         mask_acc_std = self.mlc_acceleration > alpha_acc * f * self.mlc_acceleration_std
 
         mask_acc_mi = np.logical_or(mask_speed_std, mask_acc_std)
@@ -232,14 +292,14 @@ class ModulationIndexTotal:
         z_acc = 1 / (self.Ncp - 2) * Nacc
 
         # Total MI
-        gantry_acc = self.gantry['gantry_acc']
+        gantry_acc = self.gantry["gantry_acc"]
         WGA = beta / (1 + (beta - 1) * np.exp(-gantry_acc / alpha))
 
         # Wmu
-        delta_dose_rate = self.dose_rate['delta_dose_rate']
+        delta_dose_rate = self.dose_rate["delta_dose_rate"]
         WMU = beta / (1 + (beta - 1) * np.exp(-delta_dose_rate / alpha))
 
-        tmp = mask_acc_mi.multiply(WGA, axis='index').multiply(WMU, axis='index')
+        tmp = mask_acc_mi.multiply(WGA, axis="index").multiply(WMU, axis="index")
         Mti = tmp.sum().sum() / (self.Ncp - 2)
 
         return z_speed, z_acc, Mti

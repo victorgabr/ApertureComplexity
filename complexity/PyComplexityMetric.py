@@ -3,7 +3,11 @@ import numpy as np
 
 from complexity.ApertureMetric import EdgeMetricBase
 from complexity.EsapiApertureMetric import ComplexityMetric
-from complexity.PyApertureMetric import PyAperturesFromBeamCreator, PyMetersetsFromMetersetWeightsCreator, PyAperture
+from complexity.PyApertureMetric import (
+    PyAperturesFromBeamCreator,
+    PyMetersetsFromMetersetWeightsCreator,
+    PyAperture,
+)
 
 from typing import Dict, List
 
@@ -14,13 +18,15 @@ class PyEdgeMetricBase(EdgeMetricBase):
 
     @staticmethod
     def DivisionOrDefault(a: float, b: float) -> float:
-        return a / b if b != 0 else 0.
+        return a / b if b != 0 else 0.0
 
 
 class PyComplexityMetric(ComplexityMetric):
     # TODO add unit tests
 
-    def CalculateForPlan(self, patient: None = None, plan: Dict[str, str] = None) -> float:
+    def CalculateForPlan(
+        self, patient: None = None, plan: Dict[str, str] = None
+    ) -> float:
         """
             Returns the complexity metric of a plan, calculated as
             the weighted sum of the individual metrics for each beam
@@ -49,10 +55,10 @@ class PyComplexityMetric(ComplexityMetric):
         """
 
         metersets = []
-        for k, beam in plan['beams'].items():
-            if 'MU' in beam:
-                if beam['MU'] > 0:
-                    metersets.append(float(beam['MU']))
+        for k, beam in plan["beams"].items():
+            if "MU" in beam:
+                if beam["MU"] > 0:
+                    metersets.append(float(beam["MU"]))
 
         return metersets
 
@@ -64,7 +70,9 @@ class PyComplexityMetric(ComplexityMetric):
         """
         return PyMetersetsFromMetersetWeightsCreator().Create(beam)
 
-    def CalculateForPlanPerBeam(self, patient: None, plan: Dict[str, str]) -> List[float]:
+    def CalculateForPlanPerBeam(
+        self, patient: None, plan: Dict[str, str]
+    ) -> List[float]:
         """
             Returns the unweighted metrics of a plan's non-setup beams
         :param patient:
@@ -72,10 +80,10 @@ class PyComplexityMetric(ComplexityMetric):
         :return:
         """
         values = []
-        for k, beam in plan['beams'].items():
+        for k, beam in plan["beams"].items():
             # check if treatment beam
-            if beam['TreatmentDeliveryType'] == 'TREATMENT':
-                if beam['MU'] > 0.:
+            if beam["TreatmentDeliveryType"] == "TREATMENT":
+                if beam["MU"] > 0.0:
                     v = self.CalculateForBeam(patient, plan, beam)
                     values.append(v)
 
@@ -85,11 +93,15 @@ class PyComplexityMetric(ComplexityMetric):
         metric = PyEdgeMetricBase()
         return [metric.Calculate(aperture) for aperture in apertures]
 
-    def CalculateForBeamPerAperture(self, patient: None, plan: Dict[str, str], beam: Dict[str, str]) -> List[float]:
+    def CalculateForBeamPerAperture(
+        self, patient: None, plan: Dict[str, str], beam: Dict[str, str]
+    ) -> List[float]:
         apertures = self.CreateApertures(patient, plan, beam)
         return self.CalculatePerAperture(apertures)
 
-    def CreateApertures(self, patient: None, plan: Dict[str, str], beam: Dict[str, str]) -> List[PyAperture]:
+    def CreateApertures(
+        self, patient: None, plan: Dict[str, str], beam: Dict[str, str]
+    ) -> List[PyAperture]:
         """
             Added default parameter to meet Liskov substitution principle
         :param patient:
