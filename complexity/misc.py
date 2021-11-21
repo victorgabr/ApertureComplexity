@@ -85,6 +85,11 @@ class ModulationComplexityScore(PyComplexityMetric):
 
 class ModulationIndexScore(PyComplexityMetric):
     def CalculateForPlan(self, patient=None, plan=None, k=0.02):
+        """
+            Jong Min Park et al - "Modulation indices for volumetric modulated arc therapy"
+            https://iopscience.iop.org/article/10.1088/0031-9155/59/23/7315
+            See table 1
+        """
         apertures = []
         cumulative_metersets = []
         meterset_creator = PyMetersetsFromMetersetWeightsCreator()
