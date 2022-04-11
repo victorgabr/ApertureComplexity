@@ -95,9 +95,10 @@ class ModulationIndexScore(PyComplexityMetric):
         cumulative_metersets = []
         meterset_creator = PyMetersetsFromMetersetWeightsCreator()
         for k, beam in plan["beams"].items():
-            apertures += PyAperturesFromBeamCreator().Create(beam)
-            cum = meterset_creator.GetCumulativeMetersets(beam)
-            cumulative_metersets.append(cum)
+            if "MU" in beam:
+                apertures += PyAperturesFromBeamCreator().Create(beam)
+                cum = meterset_creator.GetCumulativeMetersets(beam)
+                cumulative_metersets.append(cum)
 
         cumulative_mu = np.concatenate(cumulative_metersets)
         mid = ModulationIndexTotal(apertures, cumulative_mu)
