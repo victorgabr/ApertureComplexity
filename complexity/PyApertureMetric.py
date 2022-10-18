@@ -71,8 +71,7 @@ class PyAperturesFromBeamCreator:
         apertures = []
 
         leafWidths = self.GetLeafWidths(beam)
-        jaw = self.CreateJaw(beam)
-
+        # jaw = self.CreateJaw(beam)
         for controlPoint in beam["ControlPointSequence"]:
             gantry_angle = (
                 float(controlPoint.GantryAngle)
@@ -80,9 +79,10 @@ class PyAperturesFromBeamCreator:
                 else beam["GantryAngle"]
             )
             leafPositions = self.GetLeafPositions(controlPoint)
+            cp_jaw = self.get_jaw_position_per_control_point(controlPoint)
             if leafPositions is not None:
                 apertures.append(
-                    PyAperture(leafPositions, leafWidths, jaw, gantry_angle)
+                    PyAperture(leafPositions, leafWidths, cp_jaw, gantry_angle)
                 )
 
         return apertures
@@ -90,7 +90,7 @@ class PyAperturesFromBeamCreator:
     @staticmethod
     def CreateJaw(beam: dict) -> List[float]:
         """
-            but the Aperture class expects cartesian y axis
+            but the Aperture class expects cartesian y-axis
         :param beam:
         :return:
         """
@@ -148,6 +148,26 @@ class PyAperturesFromBeamCreator:
             bank_b_pos = mlc_open[n_pairs:]
 
             return np.vstack((bank_a_pos, bank_b_pos))
+
+    def get_jaw_position_per_control_point(self, control_point: Dataset) -> List[float]:
+        """
+            Get jaw positions from control point
+        :param
+        """
+        if "BeamLimitingDevicePositionSequence" in control_point:
+            sequence = control_point.BeamLimitingDevicePositionSequence
+            # check if there's a jaw position per control point
+            if "LeafJawPositions" in sequence[0] and "LeafJawPositions" in sequence[1]:
+                left, right = sequence[0].LeafJawPositions
+                top, bottom = sequence[1].LeafJawPositions
+                return [float(left), float(-top), float(right), float(-bottom)]
+            else:
+                left = 200.0
+                right = 200.0
+                top = -200.0
+                bottom = 200.0
+                # invert yaxis to match apperture class -top, -botton that uses Varian standard ESAPI
+                return [left, -top, right, -bottom]
 
 
 class PyMetersetsFromMetersetWeightsCreator:
