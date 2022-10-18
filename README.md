@@ -51,6 +51,22 @@ if __name__ == "__main__":
         plan_metric = cc_obj.CalculateForPlan(None, plan_dict)
         print(f"{cc.__name__} Plan Metric - {plan_metric} {unit}")
         for k, beam in plan_dict["beams"].items():
+            # skip setup fields
+            if beam["TreatmentDeliveryType"] == "TREATMENT" and beam["MU"] > 0.0:
+                with plt.style.context(["science", "no-latex"]):
+                    fig = plt.figure(figsize=(6, 6))
+                    # create a subplot
+                    ax = fig.add_subplot(111)
+                    cpx_beam_cp = cc_obj.CalculateForBeamPerAperture(
+                        None, plan_dict, beam
+                    )
+                    ax.plot(cpx_beam_cp)
+                    ax.set_xlabel("Control Point")
+                    ax.set_ylabel(f"${unit}$")
+                    txt = f"{file_name} - Beam name: {beam['BeamName']} - {cc.__name__}"
+                    ax.set_title(txt)
+                    plt.show()
+
             fig, ax = plt.subplots()
             cpx_beam_cp = cc_obj.CalculateForBeamPerAperture(None, plan_dict, beam)
             ax.plot(cpx_beam_cp)
