@@ -71,7 +71,7 @@ class PyAperturesFromBeamCreator:
         apertures = []
 
         leafWidths = self.GetLeafWidths(beam)
-        # jaw = self.CreateJaw(beam)
+        cp_jaw = self.CreateJaw(beam)
         for controlPoint in beam["ControlPointSequence"]:
             gantry_angle = (
                 float(controlPoint.GantryAngle)
@@ -79,7 +79,9 @@ class PyAperturesFromBeamCreator:
                 else beam["GantryAngle"]
             )
             leafPositions = self.GetLeafPositions(controlPoint)
-            cp_jaw = self.get_jaw_position_per_control_point(controlPoint)
+            new_jaw_position = self.get_jaw_position_per_control_point(controlPoint)
+            if new_jaw_position:
+                cp_jaw = new_jaw_position
             if leafPositions is not None:
                 apertures.append(
                     PyAperture(leafPositions, leafWidths, cp_jaw, gantry_angle)
@@ -157,17 +159,20 @@ class PyAperturesFromBeamCreator:
         if "BeamLimitingDevicePositionSequence" in control_point:
             sequence = control_point.BeamLimitingDevicePositionSequence
             # check if there's a jaw position per control point
-            if "LeafJawPositions" in sequence[0] and "LeafJawPositions" in sequence[1]:
-                left, right = sequence[0].LeafJawPositions
-                top, bottom = sequence[1].LeafJawPositions
-                return [float(left), float(-top), float(right), float(-bottom)]
+            if len(sequence) > 1:
+                if "LeafJawPositions" in sequence[0] and "LeafJawPositions" in sequence[1]:
+                    left, right = sequence[0].LeafJawPositions
+                    top, bottom = sequence[1].LeafJawPositions
+                    return [float(left), float(-top), float(right), float(-bottom)]
             else:
-                left = 200.0
-                right = 200.0
-                top = -200.0
-                bottom = 200.0
-                # invert yaxis to match apperture class -top, -botton that uses Varian standard ESAPI
-                return [left, -top, right, -bottom]
+                return []
+            # else:
+            #     left = 200.0
+            #     right = 200.0
+            #     top = -200.0
+            #     bottom = 200.0
+            #     # invert yaxis to match apperture class -top, -botton that uses Varian standard ESAPI
+            #     return [left, -top, right, -bottom]
 
 
 class PyMetersetsFromMetersetWeightsCreator:
