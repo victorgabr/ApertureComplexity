@@ -79,7 +79,7 @@ class PyAperturesFromBeamCreator:
                 else beam["GantryAngle"]
             )
             leafPositions = self.GetLeafPositions(controlPoint)
-            new_jaw_position = self.get_jaw_position_per_control_point(controlPoint)
+            new_jaw_position = self.get_jaw_position_per_control_point(controlPoint, leafWidths)
             if new_jaw_position:
                 cp_jaw = new_jaw_position
             if leafPositions is not None:
@@ -151,7 +151,31 @@ class PyAperturesFromBeamCreator:
 
             return np.vstack((bank_a_pos, bank_b_pos))
 
-    def get_jaw_position_per_control_point(self, control_point: Dataset) -> List[float]:
+    def return_jaw_position_from_mlc(self, positions, leafwidths: np.ndarray):
+        """
+        Finding left/right isn't hard, just take min and max when they aren't equal
+        Finding top/bottom is difficult. We need to find the first and last leaf pairs that are touching
+        Then use the leaf thicknesses to identify that physical location as a distance from the center
+        """
+        left_leaves = np.asarray(positions[:len(positions) // 2])
+        right_leaves = np.asarray(positions[len(positions) // 2:])
+        left = np.min(left_leaves[left_leaves != right_leaves])
+        right = np.max(right_leaves[left_leaves != right_leaves])
+        center = len(positions)//4
+        top_bottom = np.where(left_leaves != right_leaves)
+        diff_bottom = center - top_bottom[0][0]
+        if diff_bottom > 0:
+            bottom = np.sum(leafwidths[center-diff_bottom:center])
+        else:
+            bottom = -np.sum(leafwidths[center:center-diff_bottom])
+        diff_top = center - top_bottom[0][-1]
+        if diff_top > 0:
+            top = np.sum(leafwidths[center-diff_top:center])
+        else:
+            top = -np.sum(leafwidths[center:center-diff_top])
+        return [left, top, right, bottom]
+
+    def get_jaw_position_per_control_point(self, control_point: Dataset, leafwidths: np.ndarray) -> List[float]:
         """
             Get jaw positions from control point
         :param
@@ -159,21 +183,32 @@ class PyAperturesFromBeamCreator:
         if "BeamLimitingDevicePositionSequence" in control_point:
             sequence = control_point.BeamLimitingDevicePositionSequence
             # check if there's a jaw position per control point
-            if len(sequence) > 1:
-                if "LeafJawPositions" in sequence[0] and "LeafJawPositions" in sequence[1]:
-                    left, right = sequence[0].LeafJawPositions
-                    top, bottom = sequence[1].LeafJawPositions
+            mlc_jaws = [s.LeafJawPositions for s in sequence if s.RTBeamLimitingDeviceType.find("MLCX") == 0]
+            x_jaws = [s.LeafJawPositions for s in sequence if s.RTBeamLimitingDeviceType == "X"]
+            y_jaws = [s.LeafJawPositions for s in sequence if s.RTBeamLimitingDeviceType == "Y"]
+            x_jaws_asym = [s.LeafJawPositions for s in sequence if s.RTBeamLimitingDeviceType == "ASYMX"]
+            y_jaws_asym = [s.LeafJawPositions for s in sequence if s.RTBeamLimitingDeviceType == "ASYMY"]
+            """
+            Checking first to see if we have jaw positions, which will be 2 points
+            """
+            if ((x_jaws and y_jaws) or (x_jaws_asym and y_jaws_asym)) and len(leafwidths) != 28:
+                if x_jaws:
+                    left, right = x_jaws[0]
+                    top, bottom = y_jaws[0]
                     return [float(left), float(-top), float(right), float(-bottom)]
-            else:
-                return []
-            # else:
-            #     left = 200.0
-            #     right = 200.0
-            #     top = -200.0
-            #     bottom = 200.0
-            #     # invert yaxis to match apperture class -top, -botton that uses Varian standard ESAPI
-            #     return [left, -top, right, -bottom]
-
+                if x_jaws_asym:
+                    left, right = x_jaws_asym[0]
+                    top, bottom = y_jaws_asym[0]
+                    return [float(left), float(-top), float(right), float(-bottom)]
+            elif mlc_jaws and len(leafwidths) == 28:  # Make sure it is a Halcyon MLC
+                """
+                If we have halcyon style, which has 2N values, 101, 102, ..., 201, 202, ...
+                https://dicom.innolitics.com/ciods/rt-image/rt-image/30020030/300a00b6/300a011c
+                """
+                for mlc_jaw in mlc_jaws:
+                    left, top, right, bottom = self.return_jaw_position_from_mlc(mlc_jaw, leafwidths)
+                    return [float(left), float(-top), float(right), float(-bottom)]
+            return []
 
 class PyMetersetsFromMetersetWeightsCreator:
     def Create(self, beam: Dict[str, str]) -> np.ndarray:

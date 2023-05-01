@@ -1,3 +1,5 @@
 pydicom
 numpy
 pandas
+scipy
+matplotlib

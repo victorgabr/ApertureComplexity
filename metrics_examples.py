@@ -7,6 +7,7 @@ from complexity.PyComplexityMetric import (
     AreaMetricEstimator,
     ApertureIrregularityMetric,
 )
+from complexity.misc import ModulationIndexScore
 from complexity.dicomrt import RTPlan
 
 if __name__ == "__main__":
@@ -19,6 +20,7 @@ if __name__ == "__main__":
     plan_dict = plan_info.get_plan()
 
     metrics_list = [
+        #ModulationIndexScore,
         PyComplexityMetric,
         MeanAreaMetricEstimator,
         AreaMetricEstimator,
