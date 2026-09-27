@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Python 3.x port of the Eclipse ESAPI plug-in script for IMRT/VMAT aperture complexity analysis"
 readme = "README.md"
 license = "GPL-3.0-only"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 authors = [
     { name = "Victor G. L Alves", email = "victorgabr@gmail.com" },
 ]
@@ -21,11 +21,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
 dependencies = [

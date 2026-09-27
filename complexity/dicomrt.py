@@ -3,7 +3,7 @@
 # This class is derived from dicomparser.py of dicompyler-core, released under a BSD license.
 #    See the file license.txt included with this distribution, also
 #    available at https://github.com/dicompyler/dicompyler-core/
-from typing import Dict
+from typing import Any
 
 import numpy as np
 import pydicom as dicom
@@ -31,7 +31,7 @@ class RTPlan:
         else:
             raise AttributeError
 
-    def get_plan(self) -> Dict[str, str]:
+    def get_plan(self) -> dict[str, Any]:
         """Returns the plan information."""
         self.plan["label"] = self.ds.RTPlanLabel
         self.plan["date"] = self.ds.RTPlanDate
@@ -102,7 +102,7 @@ class RTPlan:
             self.plan["patient_name"] = ""
         return self.plan
 
-    def get_beams(self, fx: int = 0) -> Dict[IS, Dict[str, str]]:
+    def get_beams(self, fx: int = 0) -> dict[IS, dict[str, Any]]:
         """Return the referenced beams from the specified fraction."""
 
         beams = {}
@@ -257,7 +257,7 @@ class RTPlan:
                         beams[bi.ReferencedBeamNumber]["MU"] = float(bi.BeamMeterset)
         return beams
 
-    def get_study_info(self) -> Dict[str, str]:
+    def get_study_info(self) -> dict[str, str]:
         """Return the study information of the current file."""
 
         study = {}

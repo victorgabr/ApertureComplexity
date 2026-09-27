@@ -1,5 +1,5 @@
 # Typing imports
-from typing import List, Dict
+from typing import Any
 from pydicom.dataset import Dataset
 
 import numpy as np
@@ -29,7 +29,7 @@ class PyAperture(Aperture):
         self,
         leaf_positions: np.ndarray,
         leaf_widths: np.ndarray,
-        jaw: List[float],
+        jaw: list[float],
         gantry_angle: float,
     ) -> None:
         super().__init__(leaf_positions, leaf_widths, jaw)
@@ -37,7 +37,7 @@ class PyAperture(Aperture):
 
     def CreateLeafPairs(
         self, positions: np.ndarray, widths: np.ndarray, jaw: Jaw
-    ) -> List[PyLeafPair]:
+    ) -> list[PyLeafPair]:
         leaf_tops = self.GetLeafTops(widths)
 
         pairs = []
@@ -49,7 +49,7 @@ class PyAperture(Aperture):
         return pairs
 
     @property
-    def LeafPairArea(self) -> List[float]:
+    def LeafPairArea(self) -> list[float]:
         return [lp.FieldArea() for lp in self.LeafPairs]
 
     @property
@@ -66,7 +66,7 @@ class PyAperture(Aperture):
 
 
 class PyAperturesFromBeamCreator:
-    def Create(self, beam: Dict[str, str]) -> List[PyAperture]:
+    def Create(self, beam: dict[str, Any]) -> list[PyAperture]:
 
         apertures = []
 
@@ -90,7 +90,7 @@ class PyAperturesFromBeamCreator:
         return apertures
 
     @staticmethod
-    def CreateJaw(beam: dict) -> List[float]:
+    def CreateJaw(beam: dict[str, Any]) -> list[float]:
         """
             but the Aperture class expects cartesian y-axis
         :param beam:
@@ -106,7 +106,7 @@ class PyAperturesFromBeamCreator:
         # invert y axis to match apperture class -top, -botton that uses Varian standard ESAPI
         return [left, -top, right, -bottom]
 
-    def GetLeafWidths(self, beam_dict: Dict) -> np.ndarray:
+    def GetLeafWidths(self, beam_dict: dict[str, Any]) -> np.ndarray:
         """
             Get MLCX leaf width from  BeamLimitingDeviceSequence
             (300a, 00be) Leaf Position Boundaries Tag
@@ -122,7 +122,7 @@ class PyAperturesFromBeamCreator:
             if b.RTBeamLimitingDeviceType in ["MLCX", "MLCX1", "MLCX2"]:
                 return np.diff(b.LeafPositionBoundaries)
 
-    def GetLeafTops(self, beam_dict: Dict) -> np.ndarray:
+    def GetLeafTops(self, beam_dict: dict[str, Any]) -> np.ndarray:
         """
             Get MLCX leaf Tops from  BeamLimitingDeviceSequence
             (300a, 00be) Leaf Position Boundaries Tag
@@ -175,7 +175,7 @@ class PyAperturesFromBeamCreator:
             top = -np.sum(leafwidths[center:center-diff_top])
         return [left, top, right, bottom]
 
-    def get_jaw_position_per_control_point(self, control_point: Dataset, leafwidths: np.ndarray) -> List[float]:
+    def get_jaw_position_per_control_point(self, control_point: Dataset, leafwidths: np.ndarray) -> list[float]:
         """
             Get jaw positions from control point
         :param
@@ -211,7 +211,7 @@ class PyAperturesFromBeamCreator:
             return []
 
 class PyMetersetsFromMetersetWeightsCreator:
-    def Create(self, beam: Dict[str, str]) -> np.ndarray:
+    def Create(self, beam: dict[str, Any]) -> np.ndarray:
         if beam["PrimaryDosimeterUnit"] != "MU":
             return None
 

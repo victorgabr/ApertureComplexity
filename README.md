@@ -92,7 +92,7 @@ Beam 1
       
 ## Requirements
 
-Python 3.9+ and [uv](https://docs.astral.sh/uv/).
+Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
 - Core: `pydicom`, `numpy`, `pandas`, `scipy`
 - Optional (plotting): `matplotlib`
