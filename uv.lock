@@ -45,13 +45,13 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'plot'" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "pandas", specifier = ">=2.0" },
-    { name = "pydicom", specifier = ">=2.4" },
+    { name = "pydicom", specifier = ">=2.4.5" },
     { name = "scipy", specifier = ">=1.13" },
 ]
 provides-extras = ["plot"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest" }]
+dev = [{ name = "pytest", specifier = ">=9.0.3" }]
 
 [[package]]
 name = "contourpy"

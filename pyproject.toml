@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
 dependencies = [
-    "pydicom>=2.4",
+    "pydicom>=2.4.5",
     "numpy>=2.0",
     "pandas>=2.0",
     "scipy>=1.13",
@@ -48,7 +48,7 @@ aperture-complexity = "complexity.__main__:main"
 
 [dependency-groups]
 dev = [
-    "pytest",
+    "pytest>=9.0.3",
 ]
 
 [build-system]
