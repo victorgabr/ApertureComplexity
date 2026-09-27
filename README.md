@@ -74,10 +74,33 @@ Beam 1
 
       
 ## Requirements
-    pydicom, numpy, pandas, pytest for unit testing
-    
+
+Python 3.9+ and [uv](https://docs.astral.sh/uv/).
+
+- Core: `pydicom`, `numpy`, `pandas`, `scipy`
+- Optional (plotting): `matplotlib`
+- Dev (testing): `pytest`
+
 ## Installing
-    python setup.py install
+
+Using [uv](https://docs.astral.sh/uv/) (recommended):
+
+```bash
+# create the virtual environment and install the project + dependencies
+uv sync
+
+# run the CLI
+uv run python ComplexityScript.py path_to_dicom_RP_file
+
+# run the unit tests
+uv run pytest
+```
+
+Or install the package into an existing environment:
+
+```bash
+uv pip install .
+```
 
 ## Contributing
 

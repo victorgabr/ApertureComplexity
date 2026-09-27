@@ -18,11 +18,7 @@ class RTPlan:
         if filename:
             self.plan = dict()
             try:
-                # Only pydicom 0.9.5 and above supports the force read argument
-                if dicom.__version__ >= "0.9.5":
-                    self.ds = dicom.read_file(filename, defer_size=100, force=True)
-                else:
-                    self.ds = dicom.read_file(filename, defer_size=100)
+                self.ds = dicom.dcmread(filename, defer_size=100, force=True)
             except (EOFError, IOError):
                 # Raise the error for the calling method to handle
                 raise
@@ -57,9 +53,9 @@ class RTPlan:
                         self.plan["rxdose"] = item.TargetPrescriptionDose * 100
         if ("FractionGroupSequence" in self.ds) and (self.plan["rxdose"] == 0):
             fg = self.ds.FractionGroupSequence[0]
-            if ("ReferencedBeamSequence" in fg) and ("NumberofFractionsPlanned" in fg):
+            if ("ReferencedBeamSequence" in fg) and ("NumberOfFractionsPlanned" in fg):
                 beams = fg.ReferencedBeamSequence
-                fx = fg.NumberofFractionsPlanned
+                fx = fg.NumberOfFractionsPlanned
                 for beam in beams:
                     if "BeamDose" in beam:
                         self.plan["rxdose"] += beam.BeamDose * fx * 100
@@ -94,9 +90,9 @@ class RTPlan:
             self.plan["plan_name"] = self.ds.RTPlanName
         else:
             self.plan["plan_name"] = ""
-        if "PatientsName" in self.ds:
+        if "PatientName" in self.ds:
             name = (
-                self.ds.PatientsName.family_comma_given()
+                self.ds.PatientName.family_comma_given()
                 .replace(",", "")
                 .replace("^", " ")
                 .strip()
@@ -127,8 +123,8 @@ class RTPlan:
                 bi.TreatmentMachineName if "TreatmentMachineName" in bi else ""
             )
             beam["BeamName"] = bi.BeamName if "BeamName" in bi else ""
-            beam["SourcetoSurfaceDistance"] = (
-                bi.SourcetoSurfaceDistance if "SourcetoSurfaceDistance" in bi else ""
+            beam["SourceToSurfaceDistance"] = (
+                bi.SourceToSurfaceDistance if "SourceToSurfaceDistance" in bi else ""
             )
             beam["BeamDescription "] = (
                 bi.BeamDescription if "BeamDescription" in bi else ""
@@ -141,20 +137,20 @@ class RTPlan:
             beam["PrimaryDosimeterUnit"] = (
                 bi.PrimaryDosimeterUnit if "PrimaryDosimeterUnit" in bi else ""
             )
-            beam["NumberofWedges"] = bi.NumberofWedges if "NumberofWedges" in bi else ""
-            beam["NumberofCompensators"] = (
-                bi.NumberofCompensators if "NumberofCompensators" in bi else ""
+            beam["NumberOfWedges"] = bi.NumberOfWedges if "NumberOfWedges" in bi else ""
+            beam["NumberOfCompensators"] = (
+                bi.NumberOfCompensators if "NumberOfCompensators" in bi else ""
             )
-            beam["NumberofBoli"] = bi.NumberofBoli if "NumberofBoli" in bi else ""
-            beam["NumberofBlocks"] = bi.NumberofBlocks if "NumberofBlocks" in bi else ""
+            beam["NumberOfBoli"] = bi.NumberOfBoli if "NumberOfBoli" in bi else ""
+            beam["NumberOfBlocks"] = bi.NumberOfBlocks if "NumberOfBlocks" in bi else ""
             ftemp = (
                 bi.FinalCumulativeMetersetWeight
                 if "FinalCumulativeMetersetWeight" in bi
                 else ""
             )
             beam["FinalCumulativeMetersetWeight"] = ftemp
-            beam["NumberofControlPoints"] = (
-                bi.NumberofControlPoints if "NumberofControlPoints" in bi else ""
+            beam["NumberOfControlPoints"] = (
+                bi.NumberOfControlPoints if "NumberOfControlPoints" in bi else ""
             )
             beam["TreatmentDeliveryType"] = (
                 bi.TreatmentDeliveryType if "TreatmentDeliveryType" in bi else ""

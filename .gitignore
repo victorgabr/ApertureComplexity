@@ -32,6 +32,11 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# Virtual environments
+.venv/
+
+# pytest
+.pytest_cache/
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml

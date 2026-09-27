@@ -1,26 +1,12 @@
-import os
-import sys
-import time
+#!/usr/bin/env python
+"""Legacy entry point.
 
-from complexity.PyComplexityMetric import PyComplexityMetric
-from complexity.dicomrt import RTPlan
+The CLI now lives in ``complexity.__main__`` and is also exposed as the
+``aperture-complexity`` console script. This wrapper is kept for backwards
+compatibility with ``python ComplexityScript.py <file>``.
+"""
 
-if len(sys.argv) != 2:
-    print("Usage: %s path to DICOM RT-PLAN file *.dcm" % (sys.argv[0]))
-    sys.exit(1)
+from complexity.__main__ import main
 
-st = time.time()
-plan_info = RTPlan(filename=sys.argv[1])
-plan_dict = plan_info.get_plan()
-beams = [beam for k, beam in plan_dict["beams"].items()]
-complexity_obj = PyComplexityMetric()
-
-complexity_metric = complexity_obj.CalculateForPlan(None, plan_dict)
-ed = time.time()
-print("elapsed", ed - st)
-
-_, plan_file = os.path.split(sys.argv[1])
-
-print("Reference: https://github.com/umro/Complexity")
-print("Python version by Victor Gabriel Leandro Alves, D.Sc. - victorgabr@gmail.com")
-print("Plan %s aperture complexity: %1.3f [mm-1]: " % (sys.argv[1], complexity_metric))
+if __name__ == "__main__":
+    main()

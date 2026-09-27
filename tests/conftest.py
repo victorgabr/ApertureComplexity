@@ -1,7 +1,10 @@
 import os
 
-from complexity.dicomrt import RTPlan
 import pytest
+
+from complexity.dicomrt import RTPlan
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "tests_data")
 
 
 @pytest.fixture()

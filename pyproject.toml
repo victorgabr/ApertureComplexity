@@ -1,0 +1,64 @@
+[project]
+name = "Complexity"
+version = "0.1.0"
+description = "Python 3.x port of the Eclipse ESAPI plug-in script for IMRT/VMAT aperture complexity analysis"
+readme = "README.md"
+license = "GPL-3.0-only"
+requires-python = ">=3.9"
+authors = [
+    { name = "Victor G. L Alves", email = "victorgabr@gmail.com" },
+]
+keywords = [
+    "radiotherapy",
+    "IMRT",
+    "VMAT",
+    "DICOM",
+    "aperture-complexity",
+    "oncology",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = [
+    "pydicom>=1.0",
+    "numpy",
+    "pandas",
+    "scipy",
+]
+
+[project.optional-dependencies]
+plot = [
+    "matplotlib",
+]
+
+[project.urls]
+Homepage = "https://github.com/victorgabr/ApertureComplexity"
+Repository = "https://github.com/victorgabr/ApertureComplexity"
+Issues = "https://github.com/victorgabr/ApertureComplexity/issues"
+
+[project.scripts]
+aperture-complexity = "complexity.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["complexity"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
