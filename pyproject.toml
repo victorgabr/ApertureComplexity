@@ -29,10 +29,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
 dependencies = [
-    "pydicom>=1.0",
-    "numpy",
-    "pandas",
-    "scipy",
+    "pydicom>=2.4",
+    "numpy>=2.0",
+    "pandas>=2.0",
+    "scipy>=1.13",
 ]
 
 [project.optional-dependencies]

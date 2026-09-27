@@ -59,10 +59,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "matplotlib", marker = "extra == 'plot'" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "pydicom", specifier = ">=1.0" },
-    { name = "scipy" },
+    { name = "numpy", specifier = ">=2.0" },
+    { name = "pandas", specifier = ">=2.0" },
+    { name = "pydicom", specifier = ">=2.4" },
+    { name = "scipy", specifier = ">=1.13" },
 ]
 provides-extras = ["plot"]
 
