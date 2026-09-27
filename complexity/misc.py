@@ -47,7 +47,8 @@ class LeafSequenceVariability:
         ]
         N = len(pos)
         pos_max = np.max(pos, axis=0) - np.min(pos, axis=0)
-        tmp = np.sum(pos_max + np.diff(pos, axis=0), axis=0) / (N * pos_max)
+        total_variation = np.sum(np.abs(np.diff(pos, axis=0)), axis=0)
+        tmp = (pos_max + total_variation) / (N * pos_max)
         LSV = np.prod(tmp)
 
         num = sum(
