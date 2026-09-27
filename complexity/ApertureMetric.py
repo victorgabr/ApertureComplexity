@@ -300,6 +300,15 @@ class Aperture:
         return sum([lp.FieldArea() for lp in self.LeafPairs])
 
     def side_perimeter(self):
+        """
+            Length of the aperture edges that are perpendicular to the leaf
+            travel direction: the leaf-end edges between adjacent leaf pairs,
+            plus the top and bottom ends of the open region.
+            This is the perimeter used by the edge metric of
+            Younge et al., Int J Radiat Oncol Biol Phys 2012;82:1210-7.
+            It is NOT the closed contour perimeter required by the aperture
+            irregularity metric of Du et al. (see perimeter()).
+        """
         # Python does not support method overloading
         if len(self.LeafPairs) == 0:
             return 0.0
@@ -307,7 +316,9 @@ class Aperture:
         # Top end of first leaf pair
         perimeter = self.LeafPairs[0].FieldSize()
 
-        for i in range(len(self.LeafPairs)):
+        # Edges between adjacent leaf pairs only: the first leaf pair has no
+        # neighbour above it, so the loop starts at index 1
+        for i in range(1, len(self.LeafPairs)):
             perimeter += self.SidePerimeter(self.LeafPairs[i - 1], self.LeafPairs[i])
 
         # Bottom end of last leaf pair
@@ -315,6 +326,27 @@ class Aperture:
         perimeter += self.LeafPairs[-1].FieldSize()
 
         return perimeter
+
+    def leaf_side_perimeter(self):
+        """
+            Length of the aperture edges that are parallel to the leaf travel
+            direction: every open leaf pair contributes its two lateral sides,
+            each as long as the leaf width that is open within the jaws.
+        """
+        return 2.0 * sum(
+            lp.OpenLeafWidth() for lp in self.LeafPairs if lp.IsOpen()
+        )
+
+    def perimeter(self):
+        """
+            Length of the whole closed contour of the aperture, i.e. every
+            boundary segment: the leaf-end edges (side_perimeter) plus the
+            leaf-side edges (leaf_side_perimeter).
+            Required by the aperture irregularity metric of
+            Du et al., Med Phys 2014;41:021716, where AI = P^2 / (4*pi*A)
+            equals 1 for a circle and 4/pi = 1.273 for a square.
+        """
+        return self.side_perimeter() + self.leaf_side_perimeter()
 
     def SidePerimeter(self, topLeafPair, bottomLeafPair):
 

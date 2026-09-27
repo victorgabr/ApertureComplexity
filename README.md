@@ -67,6 +67,23 @@ if __name__ == "__main__":
                 plt.show()
 
 ```
+## Aperture geometry used by the metrics
+
+`Aperture` exposes two different perimeters, because the published metrics need two
+different definitions:
+
+| Method | Definition | Used by |
+| --- | --- | --- |
+| `side_perimeter()` | Edges perpendicular to the leaf travel direction: leaf-end edges between adjacent leaf pairs plus the top and bottom ends of the open region | Edge metric (Younge et al., *IJRBP* 2012;82:1210-7) |
+| `leaf_side_perimeter()` | Edges parallel to the leaf travel direction: the two lateral sides of every open leaf pair | — |
+| `perimeter()` | `side_perimeter() + leaf_side_perimeter()`, i.e. the whole closed contour of the aperture | Aperture irregularity (Du et al., *Med Phys* 2014;41:021716) |
+
+`ApertureIrregularityMetric` computes `AI = P^2 / (4 * pi * A)` from the closed-contour
+perimeter `P` and the aperture area `A`. `AI` is a dimensionless shape factor: 1 for a
+circle, `4/pi` = 1.273 for a square, and larger for narrower or more irregular
+apertures. An MLC aperture is a staircase, so the value a rounded aperture approaches
+is `16/pi^2` = 1.62, and any open aperture returns `AI` >= 1.
+
 ## Example result
 Beam 1 
 

@@ -147,8 +147,21 @@ class AreaMetricEstimator(PyComplexityMetric):
 
 class ApertureIrregularity:
     def Calculate(self, aperture):
+        """
+            Aperture irregularity (non-circularity) of a single aperture:
+
+                AI = P^2 / (4 * pi * A)
+
+            P is the length of the whole closed aperture contour (leaf-end
+            edges and leaf-side edges) and A is the aperture area, as defined
+            by Du et al., Med Phys 2014;41:021716, Eqs. (1) and (2).
+            AI = 1 for a circle, 4/pi = 1.273 for a square, and grows with the
+            narrowness/irregularity of the aperture shape.
+        :param aperture: PyAperture class
+        :return: dimensionless irregularity >= 1 for open apertures, 0 if closed
+        """
         aa = aperture.Area()
-        ap = aperture.side_perimeter()
+        ap = aperture.perimeter()
         return self.DivisionOrDefault(ap ** 2, 4 * np.pi * aa)
 
     @staticmethod
