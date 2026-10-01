@@ -1,12 +1,13 @@
 # Aperture Complexity
 
-A Python library and command-line tool that measures the geometric complexity of
-IMRT and VMAT treatment plans. It reads a DICOM RT-PLAN file (`*.dcm`) and
-computes published complexity metrics for every beam and control point.
+Complexity is a Python library and command-line tool. It measures the
+geometric complexity of IMRT and VMAT treatment plans. It reads one DICOM
+RT-PLAN file (`*.dcm`). It computes published complexity metrics for every
+beam and control point.
 
 The package is a port of the original
-[Eclipse ESAPI plug-in](https://github.com/umro/Complexity). Because it works on
-the DICOM standard, it runs on plans exported by any treatment planning system
+[Eclipse ESAPI plug-in](https://github.com/umro/Complexity). The package uses
+the DICOM standard, so it runs on plans from any treatment planning system
 (TPS).
 
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
@@ -18,15 +19,15 @@ In intensity-modulated radiation therapy (IMRT) and volumetric modulated arc
 therapy (VMAT), a multileaf collimator (MLC) shapes the beam. The MLC moves
 many small leaves to draw the target shape at each control point.
 
-Some shapes are easy to draw, some are hard. A simple square field is easy. A
-shape with many small, separated openings is hard to deliver and takes longer.
-Aperture complexity metrics put a number on this difficulty. Research links high
-complexity to longer delivery time, larger machine motion, and harder plan
-verification.
+Some shapes are easy to draw. A simple square field is easy. A shape with
+many small, separated openings takes longer to deliver. Aperture complexity
+metrics give a number for this difficulty. Studies connect high complexity
+to longer delivery time, more machine motion, and harder plan verification.
 
-Each metric in this package takes the MLC leaf positions at a control point and
-returns one number. The package also averages the numbers across a beam and a
-whole plan, weighted by the monitor units (MU) each control point delivers.
+Each metric takes the MLC leaf positions at one control point and returns
+one number. The package also averages the numbers for a beam and for a
+plan. The average uses the monitor units (MU) at each control point as its
+weight.
 
 ## Metrics
 
@@ -41,12 +42,12 @@ whole plan, weighted by the monitor units (MU) each control point delivers.
 | Modulation index (score) | `ModulationIndexScore` | – | MLC and gantry motion per MU | Park et al., *Med Phys* 2014;59:7315 |
 | Modulation index (total) | `ModulationIndexTotal` | – | Speed and acceleration modulation index | Park et al., *Med Phys* 2014;59:7315 |
 
-The first four classes live in `complexity.PyComplexityMetric`. The last four
-live in `complexity.misc`.
+The first four classes are in `complexity.PyComplexityMetric`. The last four
+are in `complexity.misc`.
 
-## Quickstart
+## Quick Start
 
-Install [uv](https://docs.astral.sh/uv/), then:
+Install [uv](https://docs.astral.sh/uv/). Then run:
 
 ```bash
 # 1. Create the environment and install the project + dependencies
@@ -65,17 +66,18 @@ Python version by Victor Gabriel Leandro Alves, D.Sc. - victorgabr@gmail.com
 Plan tests/tests_data/RP_FiF.dcm aperture complexity: 0.030 [mm-1]:
 ```
 
-The sample plan is a single 100 × 100 mm square field, so the edge metric is
-low (0.030 mm⁻¹) and the aperture irregularity is exactly the square value
-`4/π` = 1.273.
+The sample plan has one 100 × 100 mm square field. This field gives a low
+edge metric (0.030 mm⁻¹). The aperture irregularity is the exact value for
+a square, `4/π` = 1.273.
 
-To analyze your own plan, replace the path with your DICOM RT-PLAN file:
+To measure your own plan, replace the path with the path to your DICOM
+RT-PLAN file:
 
 ```bash
 uv run aperture-complexity /path/to/your/RP.dcm
 ```
 
-## Using the library
+## Library Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -118,7 +120,7 @@ for metric_class, unit in metrics:
             plt.show()
 ```
 
-Each metric class offers the same three levels of granularity:
+Every metric class has the same three methods:
 
 | Method | Returns |
 | --- | --- |
@@ -127,12 +129,13 @@ Each metric class offers the same three levels of granularity:
 | `CalculateForPlan(patient, plan)` | One MU-weighted value for the plan |
 
 A `PyAperture` object (see `complexity.PyApertureMetric`) holds the leaf
-positions, jaw positions, and gantry angle of one control point. Build one from
-a beam dict with `PyAperturesFromBeamCreator().Create(beam)`.
+positions, the jaw positions, and the gantry angle of one control point.
+Build a `PyAperture` object from a beam dict with
+`PyAperturesFromBeamCreator().Create(beam)`.
 
-## Command line
+## Command Line
 
-The CLI is available three ways:
+The CLI has three forms:
 
 ```bash
 uv run aperture-complexity path/to/RP.dcm     # console script
@@ -140,7 +143,7 @@ uv run python -m complexity path/to/RP.dcm    # module form
 uv run python ComplexityScript.py path/to/RP.dcm   # legacy wrapper
 ```
 
-## Project layout
+## Project Layout
 
 ```
 complexity/
@@ -154,25 +157,25 @@ ComplexityScript.py     Legacy entry point (kept for old scripts)
 tests/                  Unit tests and a sample RT-PLAN file
 ```
 
-## Aperture geometry used by the metrics
+## Aperture Geometry Used by the Metrics
 
-`Aperture` exposes two different perimeters, because the published metrics need
-two different definitions:
+`Aperture` has two perimeter definitions, because the published metrics
+need two definitions:
 
 | Method | Definition | Used by |
 | --- | --- | --- |
 | `side_perimeter()` | Edges perpendicular to the leaf travel direction: leaf-end edges between adjacent leaf pairs plus the top and bottom ends of the open region | Edge metric (Younge et al., *IJRBP* 2012;82:1210-7) |
-| `leaf_side_perimeter()` | Edges parallel to the leaf travel direction: the two lateral sides of every open leaf pair | — |
-| `perimeter()` | `side_perimeter() + leaf_side_perimeter()`, i.e. the whole closed contour of the aperture | Aperture irregularity (Du et al., *Med Phys* 2014;41:21716) |
+| `leaf_side_perimeter()` | Edges parallel to the leaf travel direction: the two lateral sides of every open leaf pair | – |
+| `perimeter()` | `side_perimeter() + leaf_side_perimeter()`, that is, the whole closed contour of the aperture | Aperture irregularity (Du et al., *Med Phys* 2014;41:21716) |
 
 `ApertureIrregularityMetric` computes `AI = P^2 / (4 * pi * A)` from the
-closed-contour perimeter `P` and the aperture area `A`. `AI` is a dimensionless
-shape factor: 1 for a circle, `4/pi` = 1.273 for a square, and larger for
-narrower or more irregular apertures. An MLC aperture is a staircase, so the
-value a rounded aperture approaches is `16/pi^2` = 1.62, and any open aperture
-returns `AI` >= 1.
+closed-contour perimeter `P` and the aperture area `A`. `AI` is a
+dimensionless shape factor. A circle gives 1. A square gives `4/pi` =
+1.273. Narrower and more irregular apertures give larger values. An MLC
+aperture is a staircase shape. A rounded aperture approaches `16/pi^2` =
+1.62. Every open aperture gives `AI` >= 1.
 
-## Example result
+## Example Result
 
 Beam 1
 
@@ -186,9 +189,9 @@ Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 - Optional (plotting): `matplotlib`
 - Dev (testing): `pytest`
 
-## Installing
+## Installation
 
-Using [uv](https://docs.astral.sh/uv/) (recommended):
+Use [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                    # environment + project + dependencies
@@ -196,26 +199,28 @@ uv run aperture-complexity path/to/RP.dcm
 uv run pytest              # run the unit tests
 ```
 
-Or install the package into an existing environment:
+To install the package into an existing environment, run:
 
 ```bash
 uv pip install .
 ```
 
-## Running the tests
+## Run the Tests
+
+The test suite covers the aperture geometry, the leaf-pair model, and
+every metric class. The tests use synthetic apertures and the bundled
+sample plan. No external data is needed.
+
+Run the tests with:
 
 ```bash
 uv run pytest
 ```
 
-The suite covers the aperture geometry, the leaf-pair model, and every metric
-class. It uses synthetic apertures plus the bundled sample plan, so it needs no
-external data.
-
 ## Contributing
 
-Any bug fixes or improvements are welcome. Run the tests before you open a pull
-request:
+Bug fixes and improvements are welcome. Before you open a pull request, run
+the tests:
 
 ```bash
 uv run pytest
