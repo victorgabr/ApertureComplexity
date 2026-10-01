@@ -13,11 +13,11 @@ from complexity.dicomrt import RTPlan
 
 
 def main(argv=None):
-    """Compute the weighted plan aperture complexity of a DICOM RT-PLAN file."""
+    """Compute the MU-weighted aperture complexity of a DICOM RT-PLAN file."""
     if argv is None:
         argv = sys.argv[1:]
     if len(argv) != 1:
-        print("Usage: aperture-complexity path to DICOM RT-PLAN file *.dcm")
+        print("Usage: aperture-complexity path/to/RP.dcm")
         sys.exit(1)
 
     path = argv[0]

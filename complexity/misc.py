@@ -1,4 +1,4 @@
-"""Classes to estimate many complexity metrics"""
+"""Classes that estimate many complexity metrics."""
 # Copyright (c) 2017-2018 Victor G. L. Alves
 
 import numpy as np
@@ -15,22 +15,19 @@ from complexity.PyComplexityMetric import PyComplexityMetric
 class LeafSequenceVariability:
     def Calculate(self, aperture, aav_norm):
         """
-            variability in segment shape for a
-            specific plan. The shape of each segment is considered,
-            based on the change in leaf position between adjacent MLC
-            leaves. This is calculated for leaves on each bank that define
-            a specific segment. The LSV is defined using N, the number
-            of open leaves constituting the beam and the coordinates of
-            the leaf positions. Leaves are not considered if they are
-            positioned under the jaws. The position of each leaf is incor-
-            porated by defining pos max .
-            The second IMRT segment characteristic that is considered
-            for the overall determination of complexity is the area
-            of the beam aperture. The aperture area variability AAV is
-            used to characterize the variation in segment area relative to
-            the maximum aperture defined by all of the segments. Segments
-            that are more similar in area to the maximum beam
-            aperture contribute to a larger score.
+        Return the leaf sequence variability (LSV) times the aperture
+        area variability (AAV) for one control point.
+
+        LSV measures the variability in segment shape. It uses the
+        change in leaf position between adjacent MLC leaves, for the
+        leaves of each bank that define a segment. N is the number of
+        open leaves in the beam. The calculation ignores leaves under
+        the jaws. Each leaf position enters the formula through
+        pos max.
+
+        AAV measures how much each segment area differs from the
+        largest segment area. Segments with areas close to the
+        maximum aperture area contribute more to the score.
 
             Reference:
             McNiven AL, Sharpe MB, Purdie TG. A new metric for assessing IMRT
@@ -39,7 +36,7 @@ class LeafSequenceVariability:
 
         :param aav_norm: Maximum aperture area
         :param aperture: Control point PyAperture class
-        :return: product LSV * AAV
+        :return: product of LSV and AAV
         """
 
         pos = [
@@ -88,9 +85,12 @@ class ModulationIndexScore(PyComplexityMetric):
 
     def CalculateForPlan(self, patient=None, plan=None, k=0.02):
         """
-            Jong Min Park et al - "Modulation indices for volumetric modulated arc therapy"
-            https://iopscience.iop.org/article/10.1088/0031-9155/59/23/7315
-            See table 1
+        Return the modulation index score of a plan.
+
+        Reference:
+        Jong Min Park et al. "Modulation indices for volumetric modulated
+        arc therapy". https://iopscience.iop.org/article/10.1088/0031-9155/59/23/7315
+        See Table 1.
         """
         apertures = []
         cumulative_metersets = []
@@ -164,7 +164,7 @@ class ModulationIndexTotal:
     @staticmethod
     def calculate_time(delta_mu):
         """
-            Calculate time between control points in seconds
+        Return the delivery time between control points, in seconds.
         :param delta_mu:
         :return: time in seconds
         """

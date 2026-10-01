@@ -11,7 +11,7 @@ from pydicom.valuerep import IS
 
 
 class RTPlan:
-    """Class that parses and returns formatted DICOM RT Plan data."""
+    """Class that parses a DICOM RT-PLAN file and returns the plan data."""
 
     def __init__(self, filename: str) -> None:
 
@@ -32,7 +32,7 @@ class RTPlan:
             raise AttributeError
 
     def get_plan(self) -> dict[str, Any]:
-        """Returns the plan information."""
+        """Return the plan information."""
         self.plan["label"] = self.ds.RTPlanLabel
         self.plan["date"] = self.ds.RTPlanDate
         self.plan["time"] = self.ds.RTPlanTime

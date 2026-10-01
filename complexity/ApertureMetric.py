@@ -13,7 +13,7 @@ Notes
 .. Original Code:
    https://github.com/umro/Complexity
 
-   Python port by. Victor Gabriel Leandro Alves
+   Python port by Victor Gabriel Leandro Alves
     victorgabr@gmail.com
 
 """
@@ -22,8 +22,9 @@ Notes
 class Rect:
     def __init__(self, left: float, top: float, right: float, bottom: float) -> None:
         """
-            Rectangular dimension (used for leaf and jaw positions)
-            it is relative to the top of the first leaf and the isocenter
+        Rectangular dimension, used for leaf and jaw positions.
+        The values are relative to the top of the first leaf and the
+        isocenter.
         :param left:
         :param top:
         :param right:
@@ -75,7 +76,7 @@ class Jaw:
 class LeafPair:
     def __init__(self, left, right, width, top, jaw):
         """
-             Left and right represent the bank A and B, respectively
+        Left and right represent banks A and B, respectively.
         :param left: float
         :param right: float
         :param width: float
@@ -121,7 +122,7 @@ class LeafPair:
     @property
     def Jaw(self):
         """
-            Each leaf pair contains a reference to the jaw
+        Return the jaw referenced by this leaf pair.
         :return:
         """
         return self.jaw
@@ -143,11 +144,10 @@ class LeafPair:
 
     def IsOutsideJaw(self):
         """
-            The reason for <= or >= instead of just < or >
-            is that if the jaw edge is equal to the leaf edge,
-            it's as if the jaw edge was the leaf edge,
-            so it's safer to count the leaf as outside,
-            so that the edges are not counted twice (leaf and jaw edge)
+        This method uses <= and >=, not < and >. If a jaw edge equals a
+        leaf edge, the method counts the leaf as outside. This avoids
+        counting the shared edge twice, once for the leaf and once for
+        the jaw.
         """
         return (
             (self.Jaw.Top <= self.Bottom)
@@ -161,8 +161,9 @@ class LeafPair:
 
     def IsOpenButBehindJaw(self):
         """
-        Used to warn the user that there is a leaf behind the jaws,
-        even though it is open and within the top and bottom jaw edges
+        Return True if the leaf pair is open but behind the jaws.
+        This warns the user that a leaf is open and behind the jaws,
+        even when it is inside the top and bottom jaw edges.
         """
         return (self.FieldSize() > 0.0) and (
             self.Jaw.Left > self.Left or self.Jaw.Right < self.Right
@@ -170,8 +171,7 @@ class LeafPair:
 
     def OpenLeafWidth(self):
         """
-        Returns the amount of leaf width that is open,
-        considering the Position of the jaw
+        Return the leaf width that is open inside the jaws.
         """
         if self.IsOutsideJaw():
             return 0.0
@@ -200,13 +200,12 @@ class Aperture:
                               -
                           Positive Y
 
-        leafPositions and leafWidths must not be null,
-        and they must have the same number of leaves
+        leafPositions and leafWidths must not be null, and they must
+        have the same number of leaves.
 
-        jaw is the Position of the jaw (cannot be null),
-        given as:
+        jaw is the jaw position (cannot be null), given as:
 
-        left, top, right, bottom; for a completely open jaw, use:
+        left, top, right, bottom. A completely open jaw uses:
 
             new double[] { double.MinValue, double.MinValue,
                            double.MaxValue, double.MaxValue };
@@ -224,7 +223,7 @@ class Aperture:
 
     def CreateLeafPairs(self, positions, widths, jaw):
         """
-
+        Return the leaf pairs for the given positions and widths.
         :param positions:
         :param widths:
         :param jaw:
@@ -243,8 +242,9 @@ class Aperture:
     @staticmethod
     def GetLeafTops(widths):
         """
-        Using the leaf widths, creates an array of the location
-        of all the leaf tops (relative to the isocenter)
+        Return an array with the top position of every leaf, relative
+        to the isocenter. The method computes the positions from the
+        leaf widths.
 
         :param widths:
         :return:
@@ -270,7 +270,7 @@ class Aperture:
     @staticmethod
     def CreateJaw(pos):
         """
-            Creates Jaw object using x and y positions
+        Create a Jaw object from x and y positions.
         :param pos: [] position
         :return: Jaw
         """
@@ -301,13 +301,14 @@ class Aperture:
 
     def side_perimeter(self):
         """
-            Length of the aperture edges that are perpendicular to the leaf
-            travel direction: the leaf-end edges between adjacent leaf pairs,
-            plus the top and bottom ends of the open region.
-            This is the perimeter used by the edge metric of
-            Younge et al., Int J Radiat Oncol Biol Phys 2012;82:1210-7.
-            It is NOT the closed contour perimeter required by the aperture
-            irregularity metric of Du et al. (see perimeter()).
+        Return the length of the aperture edges perpendicular to the
+        leaf travel direction. These are the leaf-end edges between
+        adjacent leaf pairs, plus the top and bottom ends of the open
+        region.
+        The edge metric of Younge et al., Int J Radiat Oncol Biol Phys
+        2012;82:1210-7, uses this perimeter.
+        This is not the closed-contour perimeter that the aperture
+        irregularity metric of Du et al. needs (see perimeter()).
         """
         # Python does not support method overloading
         if len(self.LeafPairs) == 0:
@@ -329,9 +330,10 @@ class Aperture:
 
     def leaf_side_perimeter(self):
         """
-            Length of the aperture edges that are parallel to the leaf travel
-            direction: every open leaf pair contributes its two lateral sides,
-            each as long as the leaf width that is open within the jaws.
+        Return the length of the aperture edges parallel to the leaf
+        travel direction. Each open leaf pair contributes its two
+        lateral sides. Each side is as long as the leaf width that is
+        open inside the jaws.
         """
         return 2.0 * sum(
             lp.OpenLeafWidth() for lp in self.LeafPairs if lp.IsOpen()
@@ -339,12 +341,13 @@ class Aperture:
 
     def perimeter(self):
         """
-            Length of the whole closed contour of the aperture, i.e. every
-            boundary segment: the leaf-end edges (side_perimeter) plus the
-            leaf-side edges (leaf_side_perimeter).
-            Required by the aperture irregularity metric of
-            Du et al., Med Phys 2014;41:021716, where AI = P^2 / (4*pi*A)
-            equals 1 for a circle and 4/pi = 1.273 for a square.
+        Return the length of the whole closed contour of the aperture:
+        the leaf-end edges (side_perimeter) plus the leaf-side edges
+        (leaf_side_perimeter).
+        The aperture irregularity metric of Du et al., Med Phys
+        2014;41:021716, needs this perimeter. That metric computes
+        AI = P^2 / (4*pi*A), which equals 1 for a circle and
+        4/pi = 1.273 for a square.
         """
         return self.side_perimeter() + self.leaf_side_perimeter()
 

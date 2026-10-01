@@ -92,7 +92,10 @@ class PyAperturesFromBeamCreator:
     @staticmethod
     def CreateJaw(beam: dict[str, Any]) -> list[float]:
         """
-            but the Aperture class expects cartesian y-axis
+        Create the jaw position list for a beam.
+        The jaw values use the Varian ESAPI y-axis convention. The
+        Aperture class expects a cartesian y-axis, so this method
+        inverts the y values.
         :param beam:
         :return:
         """
@@ -108,12 +111,12 @@ class PyAperturesFromBeamCreator:
 
     def GetLeafWidths(self, beam_dict: dict[str, Any]) -> np.ndarray:
         """
-            Get MLCX leaf width from  BeamLimitingDeviceSequence
-            (300a, 00be) Leaf Position Boundaries Tag
+        Return the MLCX leaf widths from the Leaf Position Boundaries
+        tag (300a, 00be) in the BeamLimitingDeviceSequence.
 
             #TODO HALCYON leaf widths
         :param beam_dict: Dicomparser Beam dict from plan_dict
-        :return: MLCX leaf width
+        :return: MLCX leaf widths
         """
 
         bs = beam_dict["BeamLimitingDeviceSequence"]
@@ -124,10 +127,10 @@ class PyAperturesFromBeamCreator:
 
     def GetLeafTops(self, beam_dict: dict[str, Any]) -> np.ndarray:
         """
-            Get MLCX leaf Tops from  BeamLimitingDeviceSequence
-            (300a, 00be) Leaf Position Boundaries Tag
+        Return the MLCX leaf tops from the Leaf Position Boundaries
+        tag (300a, 00be) in the BeamLimitingDeviceSequence.
         :param beam_dict: Dicomparser Beam dict from plan_dict
-        :return: MLCX leaf width
+        :return: MLCX leaf tops
         """
         bs = beam_dict["BeamLimitingDeviceSequence"]
         for b in bs:
@@ -136,9 +139,11 @@ class PyAperturesFromBeamCreator:
 
     def GetLeafPositions(self, control_point: Dataset) -> np.ndarray:
         """
-            Leaf positions are given from bottom to top by ESAPI,
-            but the Aperture class expects them from top to bottom
-            Leaf Positions are mechanical boundaries projected onto Isocenter plane
+        Return the leaf positions of a control point.
+        ESAPI gives leaf positions from bottom to top, but the
+        Aperture class expects them from top to bottom.
+        Leaf positions are mechanical boundaries projected onto the
+        isocenter plane.
             # TODO add halcyon MLC positions
         :param control_point:
         """
@@ -153,9 +158,12 @@ class PyAperturesFromBeamCreator:
 
     def return_jaw_position_from_mlc(self, positions, leafwidths: np.ndarray):
         """
-        Finding left/right isn't hard, just take min and max when they aren't equal
-        Finding top/bottom is difficult. We need to find the first and last leaf pairs that are touching
-        Then use the leaf thicknesses to identify that physical location as a distance from the center
+        Compute the jaw position from MLC leaf positions.
+        The method takes the minimum and the maximum leaf position for
+        the left and the right jaw edge. The top and the bottom edges
+        need more work. Find the first and the last open leaf pair.
+        Then convert those positions to distances from the center with
+        the leaf thicknesses.
         """
         left_leaves = np.asarray(positions[:len(positions) // 2])
         right_leaves = np.asarray(positions[len(positions) // 2:])
@@ -177,8 +185,9 @@ class PyAperturesFromBeamCreator:
 
     def get_jaw_position_per_control_point(self, control_point: Dataset, leafwidths: np.ndarray) -> list[float]:
         """
-            Get jaw positions from control point
-        :param
+        Return the jaw positions of a control point.
+        :param control_point:
+        :param leafwidths:
         """
         if "BeamLimitingDevicePositionSequence" in control_point:
             sequence = control_point.BeamLimitingDevicePositionSequence
@@ -238,7 +247,7 @@ class PyMetersetsFromMetersetWeightsCreator:
     @staticmethod
     def UndoCummulativeSum(cummulativeSum):
         """
-            Returns the values whose cummulative sum is "cummulativeSum"
+        Return the values whose cumulative sum equals the input array.
         :param cummulativeSum:
         :return:
         """

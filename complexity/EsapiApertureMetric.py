@@ -15,7 +15,7 @@ Notes
 .. Original Code:
    https://github.com/umro/Complexity
 
-   Python port by. Victor Gabriel Leandro Alves
+   Python port by Victor Gabriel Leandro Alves
     victorgabr@gmail.com
 
 """
@@ -26,15 +26,15 @@ from complexity.ApertureMetric import Aperture
 
 class ComplexityMetric:
     """
-     Abstract class that represents any complexity metric
-     it implements many common methods, but leaves
-     the actual metric calculation to subclasses
+    Abstract class that represents any complexity metric. It
+    implements many common methods. Subclasses implement the metric
+    calculation.
     """
 
     def CalculateForPlan(self, patient, plan):
         """
-            Returns the complexity metric of a plan, calculated as
-            the weighted sum of the individual metrics for each beam
+        Return the complexity metric of a plan. The method computes it
+        as the weighted sum of the metrics of each beam.
         :param patient: Patient Class
         :param plan: Plan class
         :return: metric
@@ -45,23 +45,23 @@ class ComplexityMetric:
 
     def GetWeightsPlan(self, plan):
         """
-             Returns the weights of a plan's beams
-             by default, the weights are the meterset values per beam
+        Return the weights of the beams of a plan. By default, the
+        weights are the meterset values of each beam.
         :param plan: DicomParser plan dict
         """
         return self.GetMeterSetsPlan(plan)
 
     def GetMeterSetsPlan(self, plan):
         """
-            Returns the total metersets of a plan's beams
+        Return the total metersets of the beams of a plan.
         :param plan:
-        :return: metersets of a plan's beams
+        :return: metersets of the beams of the plan
         """
         return NotImplementedError
 
     def GetMetricsPlan(self, patient, plan):
         """
-             Returns the unweighted metrics of a plan's beams
+        Return the unweighted metrics of the beams of a plan.
         :param patient:
         :param plan:
         :return:
@@ -70,7 +70,7 @@ class ComplexityMetric:
 
     def CalculateForPlanPerBeam(self, patient, plan):
         """
-            Returns the unweighted metrics of a plan's non-setup beams
+        Return the unweighted metrics of the non-setup beams of a plan.
         :param patient:
         :param plan:
         :return:
@@ -79,8 +79,8 @@ class ComplexityMetric:
 
     def CalculateForBeam(self, patient, plan, beam):
         """
-            Returns the complexity metric of a beam, calculated as
-            the weighted sum of the individual metrics for each control point
+        Return the complexity metric of a beam. The method computes it
+        as the weighted sum of the metrics of each control point.
         :param patient:
         :param plan:
         :param beam:
@@ -93,8 +93,9 @@ class ComplexityMetric:
 
     def GetWeightsBeam(self, beam):
         """
-            Returns the weights of a beam's control points
-            by default, the weights are the meterset values per control point
+        Return the weights of the control points of a beam. By
+        default, the weights are the meterset values of each control
+        point.
         :param beam:
         :return:
         """
@@ -102,7 +103,7 @@ class ComplexityMetric:
 
     def GetMetersetsBeam(self, beam):
         """
-            Returns the metersets of a beam's control points
+        Return the metersets of the control points of a beam.
         :param beam:
         :return:
         """
@@ -111,7 +112,7 @@ class ComplexityMetric:
 
     def GetMetricsBeam(self, patient, plan, beam):
         """
-            Returns the unweighted metrics of a beam's control points
+        Return the unweighted metrics of the control points of a beam.
         :param patient:
         :param plan:
         :param beam:
@@ -125,8 +126,8 @@ class ComplexityMetric:
 
     def CalculatePerAperture(self, param):
         """
-            Returns the unweighted metrics of a list of apertures
-            it must be overridden by a subclass
+        Return the unweighted metrics of a list of apertures.
+        A subclass must override this method.
         :param param:
         :return:
         """
@@ -134,7 +135,7 @@ class ComplexityMetric:
 
     def CreateApertures(self, patient, plan, beam):
         """
-            Returns the apertures created from a beam
+        Return the apertures created from a beam.
         :param patient:
         :param plan:
         :param beam:
@@ -144,7 +145,7 @@ class ComplexityMetric:
 
     def CalculatePerControlPointWeighted(self, patient, plan, beam):
         """
-            Returns the weighted metrics of a beam's control points
+        Return the weighted metrics of the control points of a beam.
         :param patient:
         :param plan:
         :param beam:
@@ -156,7 +157,7 @@ class ComplexityMetric:
 
     def CalculatePerControlPointUnweighted(self, patient, plan, beam):
         """
-            Returns the unweighted metrics of a beam's control points
+        Return the unweighted metrics of the control points of a beam.
         :param patient:
         :param plan:
         :param beam:
@@ -166,7 +167,7 @@ class ComplexityMetric:
 
     def CalculatePerControlPointWeightsOnly(self, beam):
         """
-            Returns the weights of a beam's control points
+        Return the weights of the control points of a beam.
         :param beam:
         :return:
         """
@@ -174,7 +175,7 @@ class ComplexityMetric:
 
     def WeightedSum(self, weights, values):
         """
-            Returns the weighted sum of the given values and weights
+        Return the weighted sum of the given values and weights.
         :param weights:
         :param values:
         :return:
@@ -213,7 +214,7 @@ class MetersetsFromMetersetWeightsCreator:
     @staticmethod
     def UndoCummulativeSum(cummulativeSum):
         """
-            Returns the values whose cummulative sum is "cummulativeSum"
+        Return the values whose cumulative sum equals the input array.
         :param cummulativeSum:
         :return:
         """
